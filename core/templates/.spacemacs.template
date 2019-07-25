@@ -39,21 +39,33 @@ This function should only modify configuration layer settings."
      ;; Uncomment some layer names and press `SPC f e R' (Vim style) or
      ;; `M-m f e R' (Emacs style) to install them.
      ;; ----------------------------------------------------------------
-     ;; auto-completion
-     ;; better-defaults
-     emacs-lisp
-     ;; git
+
+     ;; Syntax and completion
+     auto-completion
+     spell-checking
+     syntax-checking
      helm
-     ;; markdown
-     multiple-cursors
-     ;; org
-     ;; (shell :variables
-     ;;        shell-default-height 30
-     ;;        shell-default-position 'bottom)
-     ;; spell-checking
-     ;; syntax-checking
-     treemacs
-     ;; version-control
+
+     ;; Languages
+     emacs-lisp
+     php
+     html
+     (elm :variables
+          elm-format-on-save t
+          elm-compile-arguments '("--output=/dev/null")
+          elm-package-json "elm.json")
+     javascript
+     nginx
+
+     ;; Git
+     git
+     version-control
+
+     ;; Org
+     org
+     spacemacs-org
+     (elfeed :variables
+             rmh-elfeed-org-files (list "~/org/rss.org"))
      )
 
    ;; List of additional packages that will be installed without being
@@ -63,7 +75,8 @@ This function should only modify configuration layer settings."
    ;; To use a local version of a package, use the `:location' property:
    ;; '(your-package :location "~/path/to/your-package/")
    ;; Also include the dependencies as they will not be resolved automatically.
-   dotspacemacs-additional-packages '()
+   dotspacemacs-additional-packages '(evil-replace-with-register
+                                      org-alert)
 
    ;; A list of packages that cannot be updated.
    dotspacemacs-frozen-packages '()
@@ -171,7 +184,8 @@ It should only modify the values of Spacemacs settings."
    ;; List sizes may be nil, in which case
    ;; `spacemacs-buffer-startup-lists-length' takes effect.
    dotspacemacs-startup-lists '((recents . 5)
-                                (projects . 7))
+                                (projects . 7)
+                                (todos . 10))
 
    ;; True if the home buffer should respond to resize events. (default t)
    dotspacemacs-startup-buffer-responsive t
@@ -191,8 +205,7 @@ It should only modify the values of Spacemacs settings."
    ;; List of themes, the first of the list is loaded when spacemacs starts.
    ;; Press `SPC T n' to cycle to the next theme in the list (works great
    ;; with 2 themes variants, one dark and one light)
-   dotspacemacs-themes '(spacemacs-dark
-                         spacemacs-light)
+   dotspacemacs-themes '(zenburn)
 
    ;; Set the theme for the Spaceline. Supported themes are `spacemacs',
    ;; `all-the-icons', `custom', `doom', `vim-powerline' and `vanilla'. The
@@ -361,7 +374,7 @@ It should only modify the values of Spacemacs settings."
    ;;   :size-limit-kb 1000)
    ;; When used in a plist, `visual' takes precedence over `relative'.
    ;; (default nil)
-   dotspacemacs-line-numbers nil
+   dotspacemacs-line-numbers 'relative
 
    ;; Code folding method. Possible values are `evil' and `origami'.
    ;; (default 'evil)
@@ -469,6 +482,49 @@ This function is called at the very end of Spacemacs startup, after layer
 configuration.
 Put your configuration code here, except for variables that should be set
 before packages are loaded."
+
+  ;; Stop cursor creep
+  (setq evil-move-cursor-back nil)
+
+  ;; Ignore global grep files/folders
+  (setq grep-find-ignored-files '("yarn.lock"
+                                  "conta.elm.js"))
+  (setq grep-find-ignored-directories '("node_modules"
+                                        "dev"
+                                        "Generated"
+                                        "vendor"
+                                        "build"
+                                        "elm-stuff"))
+
+  ;; Custom org mode todo keywords
+  (setq org-todo-keywords '((sequence "TODO" "PROG" "DONE")))
+  (setq org-todo-keyword-faces '(("PROG" . "#268bd2")))
+
+  ;; Enable evil-replace-with-register packages
+  (setq evil-replace-with-register-key (kbd "gr"))
+  (evil-replace-with-register-install)
+
+  ;; Enable centered cursor mode by default
+  (global-centered-cursor-mode t)
+
+  ;; List of org agenda files
+  (setq org-agenda-files (list "~/org/notes.org"))
+
+  ;; Set maximum level or subtree refile
+  (setq org-refile-targets '((org-agenda-files :maxlevel . 2)))
+
+  ;; Show file path for subtree refile
+  (setq org-refile-use-outline-path 'file)
+
+  ;; Show all possible subtree refile paths
+  (setq org-outline-path-complete-in-steps nil)
+
+  ;; Create parent headings if necessary when doing a subtree refile
+  (setq org-refile-allow-creating-parent-nodes 'confirm)
+
+  ;; Initialize org alerts
+  (require 'org-alert)
+  (org-alert-enable)
   )
 
 ;; Do not write anything past this comment. This is where Emacs will
